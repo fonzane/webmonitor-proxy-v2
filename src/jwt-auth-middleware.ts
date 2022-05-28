@@ -1,6 +1,7 @@
 import { UnauthorizedException } from "@nestjs/common";
 import { Request, Response } from "express"
 import * as jwt from 'jsonwebtoken';
+import { jwtConstants } from "./jwt-secret";
 
 export const authenticateJWT = (req: Request, res: Response, next) => {
     const authHeader = req.headers.authorization;
@@ -20,8 +21,4 @@ export const authenticateJWT = (req: Request, res: Response, next) => {
     } else {
         res.sendStatus(401);
     }
-}
-
-export const jwtConstants = {
-    secret: 'secretKey'
 }
