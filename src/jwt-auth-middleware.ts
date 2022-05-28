@@ -4,9 +4,12 @@ import * as jwt from 'jsonwebtoken';
 
 export const authenticateJWT = (req: Request, res: Response, next) => {
     const authHeader = req.headers.authorization;
+    const authCookie = req.cookies.authorization;
 
-    if (authHeader) {
-        const token = authHeader.split(' ')[1];
+    console.log('header: ', authHeader, 'cookie: ', authCookie);
+
+    if (authCookie) {
+        const token = authCookie;
         jwt.verify(token, jwtConstants.secret, (err, user) => {
             if (err) {
                 throw new UnauthorizedException();
