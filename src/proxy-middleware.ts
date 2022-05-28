@@ -14,7 +14,7 @@ export class ProxyMiddleware implements NestMiddleware {
       proxyReq: (proxyReq: ClientRequest, req: Request, res: Response) => {
         let target;
         if (req.query.target) target = req.query.target;
-        console.log('got target: ', target);
+          console.log('got target: ', target);
         if (target) {
           res.cookie('target', target);
         }
@@ -25,7 +25,7 @@ export class ProxyMiddleware implements NestMiddleware {
   customRouter(req: Request) {
     let target = req.query.target;
     console.log('target in router: ', target);
-    let cookieTarget = req.cookies.VPNIP;
+    let cookieTarget = req.cookies.target;
     console.log('cookieTarget in router: ', cookieTarget);
     if (target) {
       return `http://${target}`;
@@ -40,7 +40,7 @@ export class ProxyMiddleware implements NestMiddleware {
   }
 
   public use(req: Request, res: Response, next: (error?: any) => void) {
-    console.log('auth? ', req.headers.authorization);
+    console.log('cookies', req.cookies);
     this.proxy(req, res, next);
   }
 }
