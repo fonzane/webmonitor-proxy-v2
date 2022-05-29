@@ -25,7 +25,7 @@ export class ProxyMiddleware implements NestMiddleware {
   customRouter(req: Request) {
     let target = req.query.target;
     console.log('target in router: ', target);
-    let cookieTarget = req.cookies.target;
+    let cookieTarget = req.cookies.target || req.cookies.VPNIP;
     console.log('cookieTarget in router: ', cookieTarget);
     if (target) {
       return `http://${target}`;
@@ -52,7 +52,7 @@ export function proxyMiddleware(req, res, next) {
 function customRouter(req: Request) {
   let target = req.query.target;
   console.log('target in router: ', target);
-  let cookieTarget = req.cookies.VPNIP;
+  let cookieTarget = req.cookies.target;
   console.log('cookieTarget in router: ', cookieTarget);
   if (target) {
     return `http://${target}`;
