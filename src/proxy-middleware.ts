@@ -36,7 +36,7 @@ export class ProxyMiddleware implements NestMiddleware {
 
   public use(req: Request, res: Response, next: (error?: any) => void) {
     console.log('headers ', req.headers);
-    console.log('resHeader ', res.header);
+    console.log('resHeader ', res.header());
     let target;
     if (req.query.target) {
       target = req.query.target
