@@ -12,13 +12,7 @@ export class ProxyMiddleware implements NestMiddleware {
     pathRewrite: this.onRewritePath,
     on: {
       proxyReq: (proxyReq: ClientRequest, req: Request, res: Response) => {
-        let target;
-        if (req.query.target) {
-          target = req.query.target
-          console.log('resetting target cookie: ', target);
-          res.clearCookie('target');
-          res.cookie('target', target, {domain: '.webmonitor.fw-systeme.de'});
-        };
+        
       }
     }
   })
@@ -41,7 +35,13 @@ export class ProxyMiddleware implements NestMiddleware {
   }
 
   public use(req: Request, res: Response, next: (error?: any) => void) {
-    console.log('cookies', req.cookies);
+    let target;
+    if (req.query.target) {
+      target = req.query.target
+      console.log('resetting target cookie: ', target);
+      res.clearCookie('target');
+      res.cookie('target', target, {domain: '.webmonitor.fw-systeme.de'});
+    };
     this.proxy(req, res, next);
   }
 }
