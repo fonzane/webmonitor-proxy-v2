@@ -13,11 +13,12 @@ export class ProxyMiddleware implements NestMiddleware {
     on: {
       proxyReq: (proxyReq: ClientRequest, req: Request, res: Response) => {
         let target;
-        if (req.query.target) target = req.query.target;
-          console.log('got target: ', target);
-        if (target) {
+        if (req.query.target) {
+          target = req.query.target
+          console.log('resetting target cookie: ', target);
+          res.clearCookie('target');
           res.cookie('target', target, {domain: '.webmonitor.fw-systeme.de'});
-        }
+        };
       }
     }
   })
