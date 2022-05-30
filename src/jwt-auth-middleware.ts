@@ -4,10 +4,9 @@ import * as jwt from 'jsonwebtoken';
 import { jwtConstants } from "./jwt-secret";
 
 export const authenticateJWT = (req: Request, res: Response, next) => {
-    const authHeader = req.headers.authorization;
     const authCookie = req.cookies.authorization;
 
-    console.log('header: ', authHeader, 'cookie: ', authCookie);
+    console.log('authCookie: ', authCookie);
 
     if (authCookie) {
         const token = authCookie;
@@ -16,9 +15,9 @@ export const authenticateJWT = (req: Request, res: Response, next) => {
                 throw new UnauthorizedException();
             }
             req['user'] = user;
-            next()
+            next();
         })
     } else {
-        res.sendStatus(401);
+        throw new UnauthorizedException();
     }
 }

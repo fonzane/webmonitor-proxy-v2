@@ -16,7 +16,7 @@ export class ProxyMiddleware implements NestMiddleware {
         if (req.query.target) target = req.query.target;
           console.log('got target: ', target);
         if (target) {
-          res.cookie('target', target);
+          res.cookie('target', target, {domain: '.webmonitor.fw-systeme.de'});
         }
       }
     }

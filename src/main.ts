@@ -13,22 +13,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(authenticateJWT, proxyMiddleware);
 
-  // app.use('/', 
-  // createProxyMiddleware({
-  //   target: 'http://localhost:3000',
-  //   changeOrigin: true,
-  //   router: customRouter,
-  //   logger: console,
-  //   pathRewrite: onRewritePath,
-  //   on: {
-  //     proxyReq: (proxyReq: ClientRequest, req: Request, res: Response) => {
-  //       let target;
-  //       if (req.query.target) target = req.query.target;
-  //       console.log('got target: ', target);
-  //       if (target) res.cookie('target', target);
-  //     }
-  //   }
-  // }))
+
   await app.listen(3333);
   Logger.log('[NestApp] Server listening on port 3333');
 }
