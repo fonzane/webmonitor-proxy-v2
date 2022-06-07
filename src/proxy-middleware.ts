@@ -1,8 +1,7 @@
-import { NestMiddleware, UseGuards } from "@nestjs/common";
-import { ClientRequest, IncomingMessage, Server, ServerResponse } from "http";
+import { NestMiddleware } from "@nestjs/common";
+import { ClientRequest } from "http";
 import { Request, Response } from 'express';
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { Url } from "url";
 
 export class ProxyMiddleware implements NestMiddleware {
   private proxy = createProxyMiddleware({
@@ -71,6 +70,9 @@ export function proxyMiddleware(req: Request, res: Response, next) {
   if (req.method === "POST" && Object.keys(req.query).length === 0) {
     let target = req.header('referer').split("?target=")[1];
     if (target) req.query.target = target;
+    else {
+      if (req.cookies.target) res.cookie('target', null, {domain: `.${req.hostname}`, expires: new Date(0)});
+    }
   }
 
   console.log('target in main ', req.query.target);
