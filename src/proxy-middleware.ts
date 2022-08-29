@@ -58,6 +58,8 @@ export function proxyMiddleware(req: Request, res: Response, next) {
     if (target) {
       return `http://${target}`;
     } else if (cookieTarget) {
+      if (cookieTarget.includes("/visual/")) 
+        return `http://${cookieTarget.split("/visual/")[0]}`;
       return `http://${cookieTarget}`;
     } 
   }
