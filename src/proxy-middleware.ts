@@ -10,6 +10,7 @@ export class ProxyMiddleware implements NestMiddleware {
     router: this.customRouter,
     logger: console,
     pathRewrite: this.onRewritePath,
+    ws: true,
   })
 
   customRouter(req: Request) {
@@ -32,6 +33,44 @@ export class ProxyMiddleware implements NestMiddleware {
   public use(req: Request, res: Response, next: (error?: any) => void) {
     this.proxy(req, res, next);
   }
+}
+
+export function proxyMiddleware2(req: Request, res: Response, next) {
+
+  let target;
+  if (req.query && req.query.target) {
+    target = req.query.target;
+    res.cookie('target', target, {domain: `.${req.hostname}`});
+  }
+
+  if (req.cookies && req.cookies.target) target = req.cookies.target;
+
+  if (target.includes("/visual/")) 
+    target = `${target.split("/visual/")[0]}`;
+
+  if (req.method === "POST" && Object.keys(req.query).length === 0) {
+    let target = req.header('referer').split("?target=")[1];
+    if (target) req.query.target = target;
+    else {
+      if (req.cookies.target) res.cookie('target', null, {domain: `.${req.hostname}`, expires: new Date(0)});
+    }
+  }
+
+  function onRewritePath(string: string):string {
+    if (string.includes("?target")) return string.split("?")[0];
+    else return string;
+  }
+
+  let proxy = createProxyMiddleware({
+    target: `http://${target}`,
+    changeOrigin: true,
+    logger: console,
+    pathRewrite: onRewritePath,
+    secure: false,
+    ws: true
+  })
+
+  proxy(req, res, next);
 }
 
 export function proxyMiddleware(req: Request, res: Response, next) {
