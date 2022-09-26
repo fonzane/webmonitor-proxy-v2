@@ -1,4 +1,3 @@
-import { NestMiddleware } from "@nestjs/common";
 import { ClientRequest } from "http";
 import { Request, Response } from 'express';
 import { createProxyMiddleware } from "http-proxy-middleware";
@@ -6,23 +5,39 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 export function proxyMiddleware2(req: Request, res: Response, next) {
 
   let target;
+  let cookieTarget;
   if (req.query && req.query.target) {
+    console.log("QUERY TARGET", req.query.target);
     target = req.query.target;
     res.cookie('target', target, {domain: `.${req.hostname}`});
   }
 
-  if (req.cookies && req.cookies.target) target = req.cookies.target;
+  if (req.cookies && req.cookies.target && !req.query.target) {
+    console.log("COOKIE TARGET", req.cookies.target);
 
-  if (target.includes("/visual/")) 
-    target = `${target.split("/visual/")[0]}`;
+    target = req.cookies.target;
 
-  if (req.method === "POST" && Object.keys(req.query).length === 0) {
-    let target = req.header('referer').split("?target=")[1];
-    if (target) req.query.target = target;
-    else {
-      if (req.cookies.target) res.cookie('target', null, {domain: `.${req.hostname}`, expires: new Date(0)});
-    }
-  }
+    // if (target.includes("/ui/"))
+    //   target = `${target.split("/ui")[0]}`;
+
+    if (target.includes("/visual/")) 
+      target = `${target.split("/visual/")[0]}`;
+
+  };
+
+  // if (target.includes("/ui/"))
+  //   target = `${target.split("/ui")[0]}`;
+
+  // if (target.includes("/visual/")) 
+  //   target = `${target.split("/visual/")[0]}`;
+
+  // if (req.method === "POST" && Object.keys(req.query).length === 0) {
+  //   let target = req.header('referer').split("?target=")[1];
+  //   if (target) req.query.target = target;
+  //   else {
+  //     if (req.cookies.target) res.cookie('target', null, {domain: `.${req.hostname}`, expires: new Date(0)});
+  //   }
+  // }
 
   function onRewritePath(string: string):string {
     if (string.includes("?target")) return string.split("?")[0];
