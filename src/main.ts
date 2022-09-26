@@ -11,6 +11,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.use(cookieParser());
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+  })
   app.use(authenticateJWT, proxyMiddleware2);
 
   await app.listen(3333);
