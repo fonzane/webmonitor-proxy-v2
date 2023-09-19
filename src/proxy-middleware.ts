@@ -11,8 +11,12 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   if (req.query && req.query.target) {
     if ((req.query.target as string).includes("192.168")) throw new UnauthorizedException();
 
-    let addresses: string[] = await promises.resolve4(req.query.target as string);
-    if (addresses.some(a => a.includes("192.168"))) throw new UnauthorizedException();
+    try {
+      let addresses: string[] = await promises.resolve4(req.query.target as string);
+      if (addresses.some(a => a.includes("192.168"))) throw new UnauthorizedException();
+    } catch (ex) {
+      console.log(ex);
+    }
 
     console.log("QUERY TARGET", req.query.target);
     target = req.query.target;
