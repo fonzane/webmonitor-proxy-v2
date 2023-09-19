@@ -1,12 +1,14 @@
 import { ClientRequest } from "http";
 import { Request, Response } from 'express';
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { UnauthorizedException } from "@nestjs/common";
 
 export function proxyMiddleware2(req: Request, res: Response, next) {
 
   let target;
   let cookieTarget;
   if (req.query && req.query.target) {
+    if ((req.query.target as string).includes("192.168")) throw new UnauthorizedException();
     console.log("QUERY TARGET", req.query.target);
     target = req.query.target;
     res.cookie('target', target, {domain: `.${req.hostname}`});
@@ -17,13 +19,15 @@ export function proxyMiddleware2(req: Request, res: Response, next) {
 
     target = req.cookies.target;
 
-    // if (target.includes("/ui/"))
-    //   target = `${target.split("/ui")[0]}`;
-
     if (target.includes("/visual/")) 
       target = `${target.split("/visual/")[0]}`;
-
   };
+
+  if (req.query && req.query.maui) {
+    console.log("MAUI");
+    target = req.url.slice(7, 20);
+    console.log("MAUITARGET: " + target);
+  }
 
   // if (target.includes("/ui/"))
   //   target = `${target.split("/ui")[0]}`;
@@ -41,6 +45,11 @@ export function proxyMiddleware2(req: Request, res: Response, next) {
 
   function onRewritePath(string: string):string {
     if (string.includes("?target")) return string.split("?")[0];
+    else if (string.includes("?maui")) {
+      console.log("STRING " + string);
+      string = string.replace("?maui=192.168.20.54/", "");
+      return string;
+    }
     else return string;
   }
 
@@ -50,7 +59,6 @@ export function proxyMiddleware2(req: Request, res: Response, next) {
     logger: console,
     pathRewrite: onRewritePath,
     secure: false,
-    ws: true
   })
 
   proxy(req, res, next);
