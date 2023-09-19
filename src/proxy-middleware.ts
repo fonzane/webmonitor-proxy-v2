@@ -9,19 +9,21 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   let target;
   let cookieTarget;
   if (req.query && req.query.target) {
-    if ((req.query.target as string).includes("192.168")) throw new UnauthorizedException();
+    if ((req.query.target as string).includes("192.168")) {
+      console.log("invalid IP dectected. aborting.");
+      return
+    };
 
     let invalidHostname: boolean;
     try {
       let addresses: string[] = await promises.resolve4(req.query.target as string);
       if (addresses.some(a => a.includes("192.168"))) {
-        invalidHostname = true;
+        console.log("invalid hostname detected. aborting.");
+        return;
       };
     } catch (ex) {
       console.log(ex);
     }
-
-    if (invalidHostname) throw new UnauthorizedException();
 
     console.log("QUERY TARGET", req.query.target);
     target = req.query.target;
