@@ -2,6 +2,7 @@ import { ClientRequest } from "http";
 import { Request, Response } from 'express';
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { UnauthorizedException } from "@nestjs/common";
+import * as dns from 'node:dns';
 
 export function proxyMiddleware2(req: Request, res: Response, next) {
 
@@ -9,6 +10,14 @@ export function proxyMiddleware2(req: Request, res: Response, next) {
   let cookieTarget;
   if (req.query && req.query.target) {
     if ((req.query.target as string).includes("192.168")) throw new UnauthorizedException();
+
+    dns.resolve4(req.query.target as string, (err, addresses) => {
+      if (err) throw err;
+
+      console.log(`addresses: ${JSON.stringify(addresses)}`);
+
+    });
+
     console.log("QUERY TARGET", req.query.target);
     target = req.query.target;
     res.cookie('target', target, {domain: `.${req.hostname}`});
