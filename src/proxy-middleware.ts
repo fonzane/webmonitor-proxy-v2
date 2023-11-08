@@ -14,7 +14,6 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
       return
     };
 
-    let invalidHostname: boolean;
     try {
       let addresses: string[] = await promises.resolve4(req.query.target as string);
       if (addresses.some(a => a.includes("192.168"))) {
@@ -22,7 +21,7 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
         return;
       };
     } catch (ex) {
-      console.log(ex);
+      console.log('dns resolve error',ex);
     }
 
     console.log("QUERY TARGET", req.query.target);
@@ -40,15 +39,15 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   };
 
   if (req.query && req.query.maui) {
-    console.log("MAUI");
-    target = req.url.slice(7, 20);
+    console.log("MAUI", req.url);
+    target = req.url.slice(7);
     console.log("MAUITARGET: " + target);
   }
 
   // if (target.includes("/ui/"))
   //   target = `${target.split("/ui")[0]}`;
 
-  // if (target.includes("/visual/")) 
+  // if (target.includes("/visual/"))
   //   target = `${target.split("/visual/")[0]}`;
 
   // if (req.method === "POST" && Object.keys(req.query).length === 0) {
@@ -62,9 +61,8 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   function onRewritePath(string: string):string {
     if (string.includes("?target")) return string.split("?")[0];
     else if (string.includes("?maui")) {
-      console.log("STRING " + string);
-      string = string.replace("?maui=192.168.20.54/", "");
-      return string;
+      string = string.split("?", 2)[1];
+      return "";
     }
     else return string;
   }
@@ -74,7 +72,7 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
     changeOrigin: true,
     logger: console,
     pathRewrite: onRewritePath,
-    secure: false,
+    secure: false
   })
 
   proxy(req, res, next);
