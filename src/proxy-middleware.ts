@@ -39,6 +39,22 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   };
 
   if (req.query && req.query.maui) {
+
+    if ((req.query.maui as string).includes("192.168")) {
+      console.log("invalid IP dectected. aborting.");
+      return
+    };
+
+    try {
+      let addresses: string[] = await promises.resolve4(req.query.maui as string);
+      if (addresses.some(a => a.includes("192.168"))) {
+        console.log("invalid hostname detected. aborting.");
+        return;
+      };
+    } catch (ex) {
+      console.log('dns resolve error',ex);
+    }
+
     console.log("MAUI", req.url);
     target = req.url.slice(7);
     console.log("MAUITARGET: " + target);
