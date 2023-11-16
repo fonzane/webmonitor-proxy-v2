@@ -1,7 +1,6 @@
 import { ClientRequest } from "http";
 import { Request, Response } from 'express';
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { UnauthorizedException } from "@nestjs/common";
 import { promises } from 'node:dns';
 
 export async function proxyMiddleware2(req: Request, res: Response, next) {
@@ -34,29 +33,30 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
 
     target = req.cookies.target;
 
-    if (target.includes("/visual/")) 
+    if (target.includes("/visual/"))
       target = `${target.split("/visual/")[0]}`;
   };
 
   if (req.query && req.query.maui) {
+    // if ((req.query.maui as string).includes("192.168")) {
+      //   console.log("invalid IP dectected. aborting.");
+      //   return
+      // };
 
-    if ((req.query.maui as string).includes("192.168")) {
-      console.log("invalid IP dectected. aborting.");
-      return
-    };
-
-    try {
-      let addresses: string[] = await promises.resolve4(req.query.maui as string);
-      if (addresses.some(a => a.includes("192.168"))) {
-        console.log("invalid hostname detected. aborting.");
-        return;
-      };
-    } catch (ex) {
-      console.log('dns resolve error',ex);
-    }
+      try {
+        let addresses: string[] = await promises.resolve4(req.query.maui as string);
+        // if (addresses.some(a => a.includes("192.168"))) {
+          //   console.log("invalid hostname detected. aborting.");
+          //   return;
+          // };
+        } catch (ex) {
+          console.log('dns resolve error',ex);
+        }
 
     console.log("MAUI", req.url);
     target = req.url.slice(7);
+    if (req.url.includes("/visual/"))
+      res.cookie('target', target, {domain: `.${req.hostname}`});
     console.log("MAUITARGET: " + target);
   }
 
