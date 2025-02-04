@@ -10,13 +10,28 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   if (req.query && req.query.target) {
     if ((req.query.target as string).includes("192.168")) {
       console.log("invalid IP dectected. aborting.");
-      return
+      res.send(
+        {
+          statusCode: 401,
+          message: "Unauthorized",
+          reason: "IP-Adress range 192.168.*.* is restricted.",
+          solution: "Ask a privileged administrator for permission to access the requested resource."
+        }
+      )
+      return;
     };
 
     try {
       let addresses: string[] = await promises.resolve4(req.query.target as string);
       if (addresses.some(a => a.includes("192.168"))) {
-        console.log("invalid hostname detected. aborting.");
+        res.send(
+          {
+            statusCode: 401,
+            message: "Unauthorized",
+            reason: "IP-Adress range 192.168.*.* is restricted.",
+            solution: "Ask a privileged administrator for permission to access the requested resource."
+          }
+        )
         return;
       };
     } catch (ex) {
@@ -84,11 +99,13 @@ export async function proxyMiddleware2(req: Request, res: Response, next) {
   }
 
   let proxy = createProxyMiddleware({
-    target: `http://${target}`,
+    // target: target,
+    //target: `http://${target}`,
+    target: `${target.includes("http") ? target : "http://" + target}`,
     changeOrigin: true,
     logger: console,
     pathRewrite: onRewritePath,
-    secure: false
+    secure: false,
   })
 
   proxy(req, res, next);
